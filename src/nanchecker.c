@@ -29,7 +29,7 @@ typedef struct {
     float (*func)(float, float);
 } checker_binary_op_desc_t;
 
-#define GEN_FUNC_2OP_MACRO(format, name, op) format name(format lhs, format rhs) { return lhs op rhs;}
+#define GEN_FUNC_2OP_MACRO(format, name, op) __attribute__((noinline)) format name(format lhs, format rhs) { return lhs op rhs;}
 
 GEN_FUNC_2OP_MACRO(float, fp32_add, +)
 GEN_FUNC_2OP_MACRO(float, fp32_mul, *)
@@ -45,8 +45,7 @@ const checker_binary_op_desc_t BIN2_OPLIST[] = {
 
 
 int main(void) {
-    uf_t result;
-    const int verbose = 1;
+    const int verbose = 0;
     const int NAN_NUM = sizeof(checker_NaNs) / sizeof(checker_NaNs[0]);
 
     const int num_op = sizeof(BIN2_OPLIST) / sizeof(BIN2_OPLIST[0]);
@@ -63,8 +62,8 @@ int main(void) {
             for (int rhs_index=0; rhs_index < NAN_NUM; rhs_index++)
             {
                 uf_t rhs_op = checker_NaNs[rhs_index];
+                uf_t result;
                 result.f = BIN2_OPLIST[op_index].func(lhs_op.f, rhs_op.f);
-                //result.f = lhs_op.f / rhs_op.f;
                 if (verbose)  {
                     printf("%s_%s(NaN[%"PRIx32"], NaN[%"PRIx32"]) = %f/(%"PRIx32")\n",
                             format_desc, op_desc, lhs_op.u, rhs_op.u, result.f, result.u);
@@ -81,7 +80,9 @@ int main(void) {
         } else {
             printf("unable to determine NaN behavior for %s %s: lhs_count=%u, rhs_count=%u\n", 
                    format_desc, op_desc, lhs_count, rhs_count);
-        }   
+        }
+    }
+
     }
 
 
