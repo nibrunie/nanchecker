@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "cmdline.h"
+
 /** Union type to easily cast fp32 and 32-bit unsigned integer values */
 typedef union {
     /** 32-bit unsigned integer view */
@@ -45,8 +47,13 @@ const checker_binary_op_desc_t BIN2_OPLIST[] = {
 };
 
 
-int main(void) {
-    const int verbose = 0;
+int main(int argc, char* argv[]) {
+    struct gengetopt_args_info args_info;
+    if (cmdline_parser(argc, argv, &args_info) != 0) {
+        return -1;
+    }
+
+    const int verbose = args_info.verbose_flag;
     const int NAN_NUM = sizeof(checker_NaNs) / sizeof(checker_NaNs[0]);
 
     const int num_op = sizeof(BIN2_OPLIST) / sizeof(BIN2_OPLIST[0]);

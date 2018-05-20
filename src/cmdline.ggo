@@ -1,0 +1,4 @@
+package "nanchecker"
+version "0.1"
+
+option "verbose" V "enable verbose mode (lot of messages)" flag off
