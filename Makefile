@@ -1,7 +1,8 @@
-CFLAGS += -O0 -mavx -std=c99
+CFLAGS += -O0 -std=c99
+LFLAGS += -lm
 
 nanchecker: src/nanchecker.c
-	$(CC) $(CFLAGS) $(LFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LFLAGS)
 
 test: nanchecker
 	./nanchecker

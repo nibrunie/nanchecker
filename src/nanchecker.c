@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <math.h>
 
 /** Union type to easily cast fp32 and 32-bit unsigned integer values */
 typedef union {
@@ -83,6 +84,36 @@ int main(void) {
         }
     }
 
+    // testing fma
+    unsigned op0_count = 0, op1_count = 0, op2_count = 0;
+    for (int op0_index=0; op0_index < NAN_NUM; op0_index++) {
+        uf_t op0 = checker_NaNs[op0_index];
+        for (int op1_index=0; op1_index < NAN_NUM; op1_index++) {
+            uf_t op1 = checker_NaNs[op1_index];
+            for (int op2_index=0; op2_index < NAN_NUM; op2_index++) {
+                uf_t op2 = checker_NaNs[op2_index];
+                uf_t result;
+                result.f = fmaf(op0.f, op1.f, op2.f);
+                if (verbose)  {
+                    printf("fmaf(NaN[%"PRIx32"], NaN[%"PRIx32"], NaN[%"PRIx32"]) = %f/(%"PRIx32")\n",
+                            op0.u, op1.u, op2.u, result.f, result.u);
+                }
+                if (result.u == op0.u) op0_count++;
+                if (result.u == op1.u) op1_count++;
+                if (result.u == op2.u) op2_count++;
+            }
+        }
+    }
+    const unsigned test_count = NAN_NUM * NAN_NUM * NAN_NUM;
+    if (op0_count == test_count) {
+        printf("fmaf forwards left-hand-side NaN payload\n");
+    } else if (op1_count == test_count) {
+        printf("fmaf forwards middle-hand-side NaN payload\n");
+    } else if (op2_count == test_count) {
+        printf("fmaf forwards right-hand-side NaN payload\n");
+    } else {
+        printf("unable to determine NaN behavior for fmaf: op0_count=%u, op1_count=%u, op2_count=%u\n", 
+               op0_count, op1_count, op2_count);
     }
 
 
